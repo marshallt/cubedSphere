@@ -1,10 +1,13 @@
 import javafx.application.Application
 import javafx.scene.*
-import javafx.scene.paint.Color
 import javafx.stage.Stage
-import javafx.scene.Scene
-import javafx.scene.control.ScrollPane
+import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.paint.Color
+import javafx.scene.paint.PhongMaterial
+import javafx.scene.shape.*
+import javafx.scene.transform.Rotate
+import render.View3d
 
 
 class Main : Application() {
@@ -15,22 +18,26 @@ class Main : Application() {
 
 
     override fun start(primaryStage: Stage) {
+        val SHOW3D = true
 
+        val root = Group()
+        val grid = Grid(256)
 
-        var world = World(GRID_SIZE)
-        var renderer = CubeSphereRenderer(world.grid, SCALE)
-        var imageView = ImageView()
-        imageView.image = renderer.render()
+        if (SHOW3D) {
+            val meshView = grid.render(100.0f)
+            val rotateY = Rotate(20.0, Rotate.Y_AXIS)
+            val rotateX = Rotate(20.0, Rotate.X_AXIS)
+            meshView.transforms.addAll(rotateX, rotateY)
+            root.children.addAll(meshView, AmbientLight())
+            val scene = View3d(root, 1200.0, 900.0, true, SceneAntialiasing.BALANCED)
+            primaryStage.scene = scene
+        } else {
+            val imageView = ImageView(grid.renderTexture())
+            root.children.addAll(imageView)
+            val scene = Scene(root, 1200.0, 900.0, true, SceneAntialiasing.BALANCED)
+            primaryStage.scene = scene
+        }
 
-
-        var scrollPane = ScrollPane(imageView)
-        scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.ALWAYS
-        scrollPane.vbarPolicy = ScrollPane.ScrollBarPolicy.ALWAYS
-        scrollPane.isPannable = true
-
-        val scene = Scene(scrollPane, 1200.0, 900.0, true, SceneAntialiasing.BALANCED)
-
-        primaryStage.scene = scene
         primaryStage.show()
 
     }
