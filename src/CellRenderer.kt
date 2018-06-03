@@ -13,11 +13,14 @@ class CellRenderer(var cellColorBasedOn: Int = 0) {  //cellColorBasedOn - 0 = el
         defineElevationPalette()
     }
 
-    fun getColor(value: Int): Color {
+    fun getColor(cell: Cell): Color {
         var result = Color(0,0,0,0)
+
+        if (cell.isEmpty) return result
+
         when (cellColorBasedOn) {
-            0 -> result = getElevationColor(value)
-            1 -> result = getClimateColor(value)
+            0 -> result = getElevationColor(cell.elevation)
+            1 -> result = getClimateColor(cell.climate)
         }
         return result
     }
@@ -66,19 +69,19 @@ class CellRenderer(var cellColorBasedOn: Int = 0) {  //cellColorBasedOn - 0 = el
     private fun defineElevationPalette() {
         elevationPalette[0] = Color( 0, 0, 0, 255)        //unknown
         elevationPalette[1] = Color( 225, 225, 225, 255)  //max elevation
-        elevationPalette[2] = Color( 100, 50, 30, 255)    //very high
-        elevationPalette[3] = Color( 152, 109, 81, 255)   //high
-        elevationPalette[4] = Color( 200, 160, 130, 255)  //medium
-        elevationPalette[5] = Color( 230, 190, 160, 255)      //low
-        elevationPalette[6] = Color( 180, 250, 200, 255)  //max elevation
-        elevationPalette[7] = Color( 120, 210, 160, 255)  //max elevation
-        elevationPalette[8] = Color( 90, 180, 130, 255)  //max elevation
-        elevationPalette[9] = Color( 60, 150, 80, 255)  //max elevation
-        elevationPalette[10] = Color( 30, 120, 30, 255)  //max elevation
-        elevationPalette[11] = Color( 0, 90, 0, 255)       //sea level / very low
-        elevationPalette[12] = Color( 232, 245, 255, 255)  //shallow water
-        elevationPalette[13] = Color( 153, 196, 224, 255)  //medium depth water
-        elevationPalette[14] = Color( 99, 134, 216, 255)   //deep water
+        elevationPalette[2] = Color( 100, 50, 30, 255)    //
+        elevationPalette[3] = Color( 152, 109, 81, 255)   //
+        elevationPalette[4] = Color( 200, 160, 130, 255)  //
+        elevationPalette[5] = Color( 230, 190, 160, 255)  //low
+        elevationPalette[6] = Color( 180, 250, 200, 255)  //
+        elevationPalette[7] = Color( 120, 210, 160, 255)  //
+        elevationPalette[8] = Color( 90, 180, 130, 255)   //
+        elevationPalette[9] = Color( 60, 150, 80, 255)    //
+        elevationPalette[10] = Color( 30, 120, 30, 255)   //
+        elevationPalette[11] = Color( 0, 90, 0, 255)      //sea level / very low
+        elevationPalette[12] = Color( 232, 245, 255, 255) //shallow water
+        elevationPalette[13] = Color( 153, 196, 224, 255) //medium depth water
+        elevationPalette[14] = Color( 99, 134, 216, 255)  //deep water
         elevationPalette[15] = Color( 47, 85, 226, 255)   //very deep water
     }
 

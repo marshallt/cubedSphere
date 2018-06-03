@@ -15,34 +15,44 @@ class Main : Application() {
 
     private val GRID_SIZE = 256 //width and height of each face
     private val SCALE = 2 //width and height (in pixels) to draw each Cell
+    val grid = Grid(GRID_SIZE)
 
 
     override fun start(primaryStage: Stage) {
-        val SHOW3D = true
+        val SHOW3D = false
 
         val root = Group()
-        val grid = Grid(256)
+        initGrid()
+        val cr = CubeRenderer(grid)
 
         if (SHOW3D) {
-            val meshView = grid.render(100.0f)
+            val meshView = cr.render(100.0f)
             val rotateY = Rotate(20.0, Rotate.Y_AXIS)
             val rotateX = Rotate(20.0, Rotate.X_AXIS)
             meshView.transforms.addAll(rotateX, rotateY)
             root.children.addAll(meshView, AmbientLight())
-            val scene = View3d(root, 1200.0, 900.0, true, SceneAntialiasing.BALANCED)
-            primaryStage.scene = scene
+            val scene3d = View3d(root, 1200.0, 900.0, true, SceneAntialiasing.BALANCED)
+            primaryStage.scene = scene3d
         } else {
-            val imageView = ImageView(grid.renderTexture())
+            val imageView = ImageView(cr.renderFlatCubeTexture())
             root.children.addAll(imageView)
-            val scene = Scene(root, 1200.0, 900.0, true, SceneAntialiasing.BALANCED)
-            primaryStage.scene = scene
+            val scene2d = Scene(root, 1200.0, 900.0, true, SceneAntialiasing.BALANCED)
+            primaryStage.scene = scene2d
         }
 
         primaryStage.show()
 
     }
 
-
+    fun initGrid() {
+        grid.cells(1, 128,128).elevation = 20000
+        grid.neighbors(1, 128, 128).forEach({it.elevation = 2000})
+        grid.cells.forEach {
+            if (it.elevation > 1) {
+                println("Cell: ${it.elevation}")
+            }
+        }
+    }
 
     companion object {
         @JvmStatic
