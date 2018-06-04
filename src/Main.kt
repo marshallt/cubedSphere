@@ -1,11 +1,7 @@
 import javafx.application.Application
 import javafx.scene.*
 import javafx.stage.Stage
-import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import javafx.scene.paint.Color
-import javafx.scene.paint.PhongMaterial
-import javafx.scene.shape.*
 import javafx.scene.transform.Rotate
 import render.View3d
 
@@ -34,7 +30,8 @@ class Main : Application() {
             val scene3d = View3d(root, 1200.0, 900.0, true, SceneAntialiasing.BALANCED)
             primaryStage.scene = scene3d
         } else {
-            val imageView = ImageView(cr.renderFlatCubeTexture())
+            //val imageView = ImageView(cr.renderFlatCubeTexture())
+            val imageView = ImageView(cr.projectPeakedSquares())
             root.children.addAll(imageView)
             val scene2d = Scene(root, 1200.0, 900.0, true, SceneAntialiasing.BALANCED)
             primaryStage.scene = scene2d
@@ -46,10 +43,15 @@ class Main : Application() {
 
     fun initGrid() {
         grid.cells(1, 128,128).elevation = 20000
-        grid.neighbors(1, 128, 128).forEach({it.elevation = 2000})
-        grid.cells.forEach {
-            if (it.elevation > 1) {
-                println("Cell: ${it.elevation}")
+        grid.neighborCells(1, 128, 128).forEach({
+            it.elevation = 2000
+        })
+
+
+        grid.cells.forEachIndexed{i, cell ->
+            if (cell.elevation > 1) {
+                val (cellFace, cellX, cellY) = grid.location(i)
+                println("$cellFace:($cellX, $cellY) - elevation = ${cell.elevation}")
             }
         }
     }

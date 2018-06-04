@@ -55,8 +55,8 @@ class CubeRenderer(val grid: Grid) {
 
         val meshView = MeshView(triangleMesh)
         val material = PhongMaterial()
-        //material.diffuseMap = renderFlatCubeTexture()
-        material.diffuseMap = useMapTexture()
+        material.diffuseMap = renderFlatCubeTexture()
+        //material.diffuseMap = useMapTexture()
         meshView.material = material
         meshView.cullFace = CullFace.NONE
         return meshView
@@ -70,20 +70,8 @@ class CubeRenderer(val grid: Grid) {
         val width = grid.size * 4
         val height = grid.size * 3
 
-        val x0 = 0
-        val x1 = (0.25 * width).toInt()
-        val x2 = (0.5 * width).toInt()
-        val x3 = (0.75 * width).toInt()
-        val x4 = (width).toInt()
-
-        val y0 = 0
-        val y1 = (0.3333 * height).toInt()
-        val y2 = (0.6667 * height).toInt()
-        val y3 = (1.0000 * height).toInt()
-
         val image = BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR)
         val g = image.createGraphics() as Graphics2D
-        val recSize = grid.size + 1
 
         val cr = CellRenderer()
         var color = Color.RED
@@ -139,6 +127,41 @@ class CubeRenderer(val grid: Grid) {
 
         val image = BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR)
         val g = image.createGraphics() as Graphics2D
+
+        val cr = CellRenderer()
+        var color = Color.RED
+        var imageX = 0
+        var imageY = 0
+
+        for (face in 0..3) {
+            for (y in 0 until grid.size) {
+                for (x in 0 until grid.size) {
+                    imageX = (face * grid.size) + x
+                    imageY = grid.size + y
+                    color = cr.getColor(grid.cells(face, x, y))
+                    image.setRGB(imageX, imageY, color.rgb)
+                }
+            }
+        }
+
+        //face 4 - NORTH
+        //WESTERN TRIANGLE
+        for (y in 0 until grid.size) {
+            for (x in 0 until grid.size) {
+                imageX = y
+                imageY = grid.size - x
+                color = cr.getColor(grid.cells(4, x, y))
+                image.setRGB(imageX, imageY, color.rgb)
+
+                imageX = grid.size - y
+                imageY = grid.size - x
+                color = cr.getColor(grid.cells(4, x, grid.size - y - 1))
+                image.setRGB(imageX, imageY, color.rgb)
+            }
+        }
+
+        g.dispose()
+
 
         return SwingFXUtils.toFXImage(image, null)
     }

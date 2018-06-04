@@ -1,5 +1,23 @@
 class Grid(val size: Int) {
-    val cells = Array<Cell>(size * size * 6, {Cell(0)})
+    val faceSize = size * size
+    val cells = Array<Cell>(faceSize * 6, {Cell(0)})
+
+    fun index(face: Int, x: Int, y: Int): Int {
+        return  (face * faceSize) + (y * size) + x
+    }
+
+    fun location(index: Int): GridRef {
+        var i = index
+        val face = i / faceSize
+        i = i.rem(face * faceSize)
+        val y = i / size
+        i = i.rem(y * size)
+        return GridRef(face, i, y) //i is the remainder which is the X value
+    }
+
+    fun cells(gridRef: GridRef): Cell {
+        return cells(gridRef.face, gridRef.x, gridRef.y)
+    }
 
     fun cells(face: Int, x: Int, y: Int): Cell {
         if (face > 5 || face < 0) throw Exception("Face must be between 0 and 5")
@@ -10,20 +28,35 @@ class Grid(val size: Int) {
         return cells[index]
     }
 
-    fun neighbors(face: Int, x: Int, y: Int, emptyOnly: Boolean = false): ArrayList<Cell> {
-        val result = ArrayList<Cell>()
+    fun neighborRefs(face: Int, x: Int, y: Int, emptyOnly: Boolean = false): ArrayList<GridRef> {
+        val result = ArrayList<GridRef>()
         for (dy in -1..1) {
             for (dx in -1..1) {
-                if (dy == 0 && dx == 0) break
-                if (emptyOnly) {
-                    if (cells(face, x + dx, y + dy).isEmpty) {
-                        result.add(cells(face, x + dx, y + dy))
+                if (dy == 0 && dx == 0) {} //skip the cell itself
+                else {
+                    if (emptyOnly) {
+                        if (cells(face, x + dx, y + dy).isEmpty) {
+                            result.add(GridRef(face, x + dx, y + dy))
+                        }
+                    } else {
+                        result.add(GridRef(face, x + dx, y + dy))
                     }
-                } else {
-                        result.add(cells(face, x + dx, y + dy))
                 }
             }
         }
         return result
+    }
+
+    fun neighborCells(face: Int, x: Int, y: Int, emptyOnly: Boolean = false): ArrayList<Cell> {
+        val refs = neighborRefs(face, x, y, emptyOnly)
+        val result = ArrayList<Cell>()
+        refs.forEach{result.add(cells(it))}
+        return result
+    }
+}
+
+data class GridRef(val face: Int, val x: Int, val y: Int) {
+    override fun toString(): String {
+        return "Face $face: ($x, $y)"
     }
 }

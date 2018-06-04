@@ -27,7 +27,7 @@ class CellRenderer(var cellColorBasedOn: Int = 0) {  //cellColorBasedOn - 0 = el
 
     private fun getElevationColor(value: Int): Color {
         var result = elevationPalette[0]
-        if (renderAllWaterAtOneDepth && value < 1) return elevationPalette[13]
+        if (renderAllWaterAtOneDepth && value < 1) return elevationPalette[12]
 
         when (value) {
             in 10000..Int.MAX_VALUE ->  result = elevationPalette[1]
