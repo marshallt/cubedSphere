@@ -9,6 +9,7 @@ import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 
 class CubeRenderer(val grid: Grid) {
+    val cr = CellRenderer()
 
     fun render(cubeSize: Float): MeshView {
         val s = cubeSize / 2f
@@ -128,7 +129,6 @@ class CubeRenderer(val grid: Grid) {
         val image = BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR)
         val g = image.createGraphics() as Graphics2D
 
-        val cr = CellRenderer()
         var color = Color.RED
         var imageX = 0
         var imageY = 0
@@ -144,26 +144,71 @@ class CubeRenderer(val grid: Grid) {
             }
         }
 
-        //face 4 - NORTH
-        //WESTERN TRIANGLE
+        val halfSize = grid.size / 2
+        var imageX1 = 0
+        var imageY1 = 0
+        var imageX2 = 0
+        var imageY2 = 0
+        var mirrorX = 0
+        var mirrorY = 0
         for (y in 0 until grid.size) {
             for (x in 0 until grid.size) {
-                imageX = y
-                imageY = grid.size - x
-                color = cr.getColor(grid.cells(4, x, y))
-                image.setRGB(imageX, imageY, color.rgb)
+                //face 4 - NORTH POLE
+                if (y < halfSize && x <= y) { //LEFT section. Rotate left 90 degrees CCW and put over face 0
+                    imageX1 = y
+                    imageY1 = grid.size - x - 1
+                    mirrorX = x
+                    mirrorY = grid.size - y - 1
+                    imageX2 =  mirrorY
+                    imageY2 = grid.size - mirrorX - 1
+                    projectPolePixels(image, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
+                }
 
-                imageX = grid.size - y
-                imageY = grid.size - x
-                color = cr.getColor(grid.cells(4, x, grid.size - y - 1))
-                image.setRGB(imageX, imageY, color.rgb)
+                if (x < halfSize && x >= y) { //TOP section. Rotate 180 degrees and put over face 3
+                    imageX1 = grid.size * 3 + x
+                    imageY1 = grid.size - y - 1
+                    mirrorX = grid.size - x - 1
+                    mirrorY = y
+                    imageX2 = grid.size * 4 - x - 1
+                    imageY2 = imageY1
+                    projectPolePixels(image, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
+                }
+
+                if (y >= halfSize && x >= y) { //RIGHT section. Rotate 90 degrees CW and put over face 2
+                    imageX1 = grid.size * 3 - y - 1
+                    imageY1 = x
+                    mirrorX = x
+                    mirrorY = grid.size - y - 1
+                    imageX2 = grid.size * 3 - mirrorY - 1
+                    imageY2 = mirrorX
+                    //println("$x, $y, $imageX1, $imageY1, $mirrorX, $mirrorY, $imageX2, $imageY2")
+                    projectPolePixels(image, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
+                }
+
+                if (x >= halfSize && x <= y) { //BOTTOM section. No rotation. Put over face 1
+                    imageX1 = grid.size + x
+                    imageY1 = y
+                    mirrorX = grid.size - x - 1
+                    mirrorY = y
+                    imageX2 = grid.size + mirrorX
+                    imageY2 = y
+                    println("$x, $y, $imageX1, $imageY1, $mirrorX, $mirrorY, $imageX2, $imageY2")
+                    projectPolePixels(image, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
+                }
             }
+
         }
 
         g.dispose()
 
-
         return SwingFXUtils.toFXImage(image, null)
+    }
+
+    private fun projectPolePixels(image: BufferedImage, face: Int, x: Int, y: Int, imageX1: Int, imageY1: Int, mirrorX: Int, mirrorY: Int, imageX2: Int, imageY2: Int) {
+        var color = cr.getColor(grid.cells(face, x, y))
+        image.setRGB(imageX1, imageY1, color.rgb)
+        color = cr.getColor(grid.cells(face, mirrorX, mirrorY))
+        image.setRGB(imageX2, imageY2, color.rgb)
     }
 
 }
