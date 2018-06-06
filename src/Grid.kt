@@ -28,6 +28,14 @@ class Grid(val size: Int) {
         return cells[index]
     }
 
+    fun reset() {
+        cells.forEach({
+            it.elevation = 0
+            it.climate = 0
+            it.isEmpty = false
+        })
+    }
+
     fun neighborRefs(face: Int, x: Int, y: Int, emptyOnly: Boolean = false): ArrayList<GridRef> {
         val result = ArrayList<GridRef>()
         for (dy in -1..1) {
@@ -53,10 +61,10 @@ class Grid(val size: Int) {
         refs.forEach{result.add(cells(it))}
         return result
     }
+
+    fun neighborCells(gridRef: GridRef, emptyOnly: Boolean = false): ArrayList<Cell> {
+        return neighborCells(gridRef.face, gridRef.x, gridRef.y, emptyOnly)
+    }
+
 }
 
-data class GridRef(val face: Int, val x: Int, val y: Int) {
-    override fun toString(): String {
-        return "Face $face: ($x, $y)"
-    }
-}

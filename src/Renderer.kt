@@ -1,5 +1,9 @@
 import javafx.embed.swing.SwingFXUtils
+import javafx.scene.Group
+import javafx.scene.Scene
 import javafx.scene.image.Image
+import javafx.scene.image.ImageView
+import javafx.scene.paint.Material
 import javafx.scene.paint.PhongMaterial
 import javafx.scene.shape.CullFace
 import javafx.scene.shape.MeshView
@@ -8,10 +12,12 @@ import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 
-class CubeRenderer(val grid: Grid) {
+class Renderer(val world: World) {
     val cr = CellRenderer()
 
-    fun render(cubeSize: Float): MeshView {
+    var material = PhongMaterial()
+
+    fun render3d(cubeSize: Float): MeshView {
         val s = cubeSize / 2f
         val triangleMesh = TriangleMesh()
         triangleMesh.points.addAll(s, s, s,
@@ -55,9 +61,7 @@ class CubeRenderer(val grid: Grid) {
         triangleMesh.faceSmoothingGroups.addAll(0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5)
 
         val meshView = MeshView(triangleMesh)
-        val material = PhongMaterial()
         material.diffuseMap = renderFlatCubeTexture()
-        //material.diffuseMap = useMapTexture()
         meshView.material = material
         meshView.cullFace = CullFace.NONE
         return meshView
@@ -68,6 +72,7 @@ class CubeRenderer(val grid: Grid) {
     }
 
     fun renderFlatCubeTexture(): Image {
+        val grid = world.grid
         val width = grid.size * 4
         val height = grid.size * 3
 
@@ -112,6 +117,7 @@ class CubeRenderer(val grid: Grid) {
     }
 
     fun projectPeakedSquares(): Image {
+        val grid = world.grid
         val width = grid.size * 4
         val height = grid.size * 3
 
@@ -181,7 +187,6 @@ class CubeRenderer(val grid: Grid) {
                     mirrorY = grid.size - y - 1
                     imageX2 = grid.size * 3 - mirrorY - 1
                     imageY2 = mirrorX
-                    //println("$x, $y, $imageX1, $imageY1, $mirrorX, $mirrorY, $imageX2, $imageY2")
                     projectPolePixels(image, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
                 }
 
@@ -192,7 +197,6 @@ class CubeRenderer(val grid: Grid) {
                     mirrorY = y
                     imageX2 = grid.size + mirrorX
                     imageY2 = y
-                    println("$x, $y, $imageX1, $imageY1, $mirrorX, $mirrorY, $imageX2, $imageY2")
                     projectPolePixels(image, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
                 }
             }
@@ -205,6 +209,7 @@ class CubeRenderer(val grid: Grid) {
     }
 
     private fun projectPolePixels(image: BufferedImage, face: Int, x: Int, y: Int, imageX1: Int, imageY1: Int, mirrorX: Int, mirrorY: Int, imageX2: Int, imageY2: Int) {
+        val grid = world.grid
         var color = cr.getColor(grid.cells(face, x, y))
         image.setRGB(imageX1, imageY1, color.rgb)
         color = cr.getColor(grid.cells(face, mirrorX, mirrorY))
