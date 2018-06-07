@@ -1,6 +1,6 @@
 class Grid(val size: Int) {
-    val faceSize = size * size
-    val cells = Array<Cell>(faceSize * 6, {Cell(0)})
+    private val faceSize = size * size
+    private val cells = Array(faceSize * 6, {Cell(0)})
 
     fun index(face: Int, x: Int, y: Int): Int {
         return  (face * faceSize) + (y * size) + x
@@ -56,14 +56,14 @@ class Grid(val size: Int) {
     }
 
     fun neighborCells(face: Int, x: Int, y: Int, emptyOnly: Boolean = false): ArrayList<Cell> {
-        val refs = neighborRefs(face, x, y, emptyOnly)
+        val refs = this.neighborRefs(face, x, y, emptyOnly)
         val result = ArrayList<Cell>()
         refs.forEach{result.add(cells(it))}
         return result
     }
 
     fun neighborCells(gridRef: GridRef, emptyOnly: Boolean = false): ArrayList<Cell> {
-        return neighborCells(gridRef.face, gridRef.x, gridRef.y, emptyOnly)
+        return this.neighborCells(gridRef.face, gridRef.x, gridRef.y, emptyOnly)
     }
 
 }

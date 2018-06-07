@@ -1,9 +1,5 @@
 import javafx.embed.swing.SwingFXUtils
-import javafx.scene.Group
-import javafx.scene.Scene
 import javafx.scene.image.Image
-import javafx.scene.image.ImageView
-import javafx.scene.paint.Material
 import javafx.scene.paint.PhongMaterial
 import javafx.scene.shape.CullFace
 import javafx.scene.shape.MeshView
@@ -13,7 +9,7 @@ import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 
 class Renderer(val world: World) {
-    val cr = CellRenderer()
+    val cellRenderer = CellRenderer()
 
     var material = PhongMaterial()
 
@@ -61,26 +57,35 @@ class Renderer(val world: World) {
         triangleMesh.faceSmoothingGroups.addAll(0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5)
 
         val meshView = MeshView(triangleMesh)
-        material.diffuseMap = renderFlatCubeTexture()
+        material.diffuseMap = renderFlatCubeTexture(1) //render at 1 because in 3d, the texture will get scaled automatically
         meshView.material = material
         meshView.cullFace = CullFace.NONE
         return meshView
     }
 
-    fun useMapTexture(): Image {
+    fun renderEarthFlatCubeTexture(): Image {
         return Image("big-gallery-172worldmap.jpg")
     }
 
-    fun renderFlatCubeTexture(): Image {
+    fun setPixel(image: BufferedImage, x: Int, y: Int, color: Color, scale: Int) {
+        for (i in 0 until scale) {
+            //println("setting $x, $y at scale $scale")
+            image.setRGB(x * scale + i, y * scale + i, color.rgb)
+        }
+    }
+
+
+    fun renderFlatCubeTexture(scale: Int): Image {
         val grid = world.grid
-        val width = grid.size * 4
-        val height = grid.size * 3
+        val width = grid.size * 4 * scale
+        val height = grid.size * 3 * scale
 
         val image = BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR)
         val g = image.createGraphics() as Graphics2D
-
+        g.color = Color.WHITE
+        g.fillRect(0, 0, width, height)
         val cr = CellRenderer()
-        var color = Color.RED
+        var color: Color
         var imageX = 0
         var imageY = 0
 
@@ -106,7 +111,7 @@ class Renderer(val world: World) {
                         }
                     }
                     color = cr.getColor(grid.cells(face, x, y))
-                    image.setRGB(imageX, imageY, color.rgb)
+                    setPixel(image, imageX, imageY, color, scale)
                 }
             }
         }
@@ -116,36 +121,27 @@ class Renderer(val world: World) {
         return SwingFXUtils.toFXImage(image, null)
     }
 
-    fun projectPeakedSquares(): Image {
+    fun projectPeakedSquares(scale: Int): Image {
         val grid = world.grid
-        val width = grid.size * 4
-        val height = grid.size * 3
-
-        val x0 = 0
-        val x1 = (0.25 * width).toInt()
-        val x2 = (0.5 * width).toInt()
-        val x3 = (0.75 * width).toInt()
-        val x4 = (width).toInt()
-
-        val y0 = 0
-        val y1 = (0.3333 * height).toInt()
-        val y2 = (0.6667 * height).toInt()
-        val y3 = (1.0000 * height).toInt()
+        val width = grid.size * 4 * scale
+        val height = grid.size * 3 * scale
 
         val image = BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR)
         val g = image.createGraphics() as Graphics2D
+        g.color = Color.WHITE
+        g.fillRect(0, 0, width, height)
 
-        var color = Color.RED
-        var imageX = 0
-        var imageY = 0
+        var color: Color
+        var imageX: Int
+        var imageY: Int
 
         for (face in 0..3) {
             for (y in 0 until grid.size) {
                 for (x in 0 until grid.size) {
                     imageX = (face * grid.size) + x
                     imageY = grid.size + y
-                    color = cr.getColor(grid.cells(face, x, y))
-                    image.setRGB(imageX, imageY, color.rgb)
+                    color = cellRenderer.getColor(grid.cells(face, x, y))
+                    setPixel(image, imageX, imageY, color, scale)
                 }
             }
         }
@@ -167,7 +163,7 @@ class Renderer(val world: World) {
                     mirrorY = grid.size - y - 1
                     imageX2 =  mirrorY
                     imageY2 = grid.size - mirrorX - 1
-                    projectPolePixels(image, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
+                    projectPolePixels(image, scale, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
                 }
 
                 if (x < halfSize && x >= y) { //TOP section. Rotate 180 degrees and put over face 3
@@ -177,7 +173,7 @@ class Renderer(val world: World) {
                     mirrorY = y
                     imageX2 = grid.size * 4 - x - 1
                     imageY2 = imageY1
-                    projectPolePixels(image, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
+                    projectPolePixels(image, scale, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
                 }
 
                 if (y >= halfSize && x >= y) { //RIGHT section. Rotate 90 degrees CW and put over face 2
@@ -187,7 +183,7 @@ class Renderer(val world: World) {
                     mirrorY = grid.size - y - 1
                     imageX2 = grid.size * 3 - mirrorY - 1
                     imageY2 = mirrorX
-                    projectPolePixels(image, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
+                    projectPolePixels(image, scale, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
                 }
 
                 if (x >= halfSize && x <= y) { //BOTTOM section. No rotation. Put over face 1
@@ -197,7 +193,7 @@ class Renderer(val world: World) {
                     mirrorY = y
                     imageX2 = grid.size + mirrorX
                     imageY2 = y
-                    projectPolePixels(image, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
+                    projectPolePixels(image, scale, 4, x, y, imageX1, imageY1, mirrorX, mirrorY, imageX2, imageY2)
                 }
             }
 
@@ -208,12 +204,14 @@ class Renderer(val world: World) {
         return SwingFXUtils.toFXImage(image, null)
     }
 
-    private fun projectPolePixels(image: BufferedImage, face: Int, x: Int, y: Int, imageX1: Int, imageY1: Int, mirrorX: Int, mirrorY: Int, imageX2: Int, imageY2: Int) {
+    private fun projectPolePixels(image: BufferedImage, scale: Int, face: Int, x: Int, y: Int, imageX1: Int, imageY1: Int, mirrorX: Int, mirrorY: Int, imageX2: Int, imageY2: Int) {
         val grid = world.grid
-        var color = cr.getColor(grid.cells(face, x, y))
-        image.setRGB(imageX1, imageY1, color.rgb)
-        color = cr.getColor(grid.cells(face, mirrorX, mirrorY))
-        image.setRGB(imageX2, imageY2, color.rgb)
+        var color = cellRenderer.getColor(grid.cells(face, x, y))
+        setPixel(image, imageX1, imageY1, color, scale)
+
+        color = cellRenderer.getColor(grid.cells(face, mirrorX, mirrorY))
+        setPixel(image, imageX2, imageY2, color, scale)
+
     }
 
 }
