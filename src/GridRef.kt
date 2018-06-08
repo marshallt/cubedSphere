@@ -1,7 +1,4 @@
 class GridRef(val face: Int, val x: Int, val y: Int) {
-    fun add(dx: Int, dy: Int): GridRef {
-        return GridRef(face, x + dx, y + dy)
-    }
 
     operator fun component1(): Int {
         return face

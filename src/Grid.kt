@@ -1,3 +1,5 @@
+import kotlin.math.abs
+
 class Grid(val size: Int) {
     private val faceSize = size * size
     private val cells = Array(faceSize * 6, {Cell(0)})
@@ -64,6 +66,86 @@ class Grid(val size: Int) {
 
     fun neighborCells(gridRef: GridRef, emptyOnly: Boolean = false): ArrayList<Cell> {
         return this.neighborCells(gridRef.face, gridRef.x, gridRef.y, emptyOnly)
+    }
+
+    fun move(ref: GridRef, dx: Int, dy: Int): GridRef {
+
+        if (dx > size || dy > size) {
+            throw Exception("dx and dy must be less than size")
+        }
+
+        var newFace = ref.face
+        var newX = ref.x + dx
+        var newY = ref.y + dy
+
+        println("($newX, $newY)")
+        if (newX in 0..size && newY in 0..size) {
+            return GridRef(newFace, newX, newY)
+        }
+
+        if (newY in 0..size) {
+            if (newX < 0){
+                when (ref.face) {
+                    0 -> {
+                        newFace = 3
+                        newX += size
+                    }
+
+                    in 1..3 -> {
+                        newFace = ref.face - 1
+                        newX += size
+                    }
+
+                    4 -> {
+                        newFace = 0
+                        newX = size - newY
+                        newY = abs(newX)
+                    }
+
+                    5 -> {
+                        newFace = 0
+                        newX = newY
+                        newY = size + newX
+                    }
+
+                    else -> {
+                        throw Exception("face not in 0..5")
+                    }
+                }
+            } else if (newX > size) {
+                when (ref.face) {
+                    in 0..2 -> {
+                        newFace = ref.face + 1
+                        newX = size - newX
+                    }
+
+                    3 -> {
+                        newFace = 0
+                        newX = size - newX
+                    }
+
+                    4 -> {
+                        val tmpX = newX
+                        newFace = 2
+                        newX = size - newY
+                        newY = tmpX - size
+                    }
+
+                    5 -> {
+                        val tmpX = newX
+                        newFace = 2
+                        newX = newY
+                        newY = size - tmpX + size
+                    }
+                }
+
+            }
+        }
+
+
+
+        return GridRef(newFace, newX, newY)
+
     }
 
 }

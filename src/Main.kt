@@ -7,7 +7,7 @@ import javafx.scene.paint.Color
 import javafx.scene.paint.PhongMaterial
 import javafx.scene.shape.MeshView
 import javafx.scene.transform.Rotate
-import render.View3d
+
 
 typealias UIUpdateFunction = () -> Unit
 
@@ -22,7 +22,7 @@ class Main : Application() {
     private var meshView = MeshView()
     private var scale2d = 2
 
-    private var activeRenderView: RenderView = RenderView.Cube3d
+    private var activeRenderView: RenderView = RenderView.Peaked
         set(value) {
             field = value
             updateView()
@@ -55,7 +55,7 @@ class Main : Application() {
 
         updateView()
         primaryStage.show()
-        world.simulate(::updateView, 100, 1)
+        world.simulate(::updateView, 1000, 1)
 
     }
 

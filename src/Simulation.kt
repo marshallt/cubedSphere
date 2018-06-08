@@ -4,7 +4,7 @@ import javafx.event.EventHandler
 
 class Simulation(val world: World, val uiUpdateFunction: UIUpdateFunction, val numberOfIterations: Int, val yearsPerIteration: Int) {
     private var iterationCtr = 0
-    private var speckLocation = GridRef(1, 128, 128)
+    private var speckLocation = GridRef(1, 128, 50)
 
     fun run() {
         val thread = Thread(iterate())
@@ -33,9 +33,9 @@ class Simulation(val world: World, val uiUpdateFunction: UIUpdateFunction, val n
 
     private fun updateWorld() {
         val start = System.nanoTime()
-        Thread.sleep(100)
-        world.grid.reset()
-        speckLocation = speckLocation.add(1, -1)
+        Thread.sleep(25)
+        //world.grid.reset()
+        speckLocation = world.grid.move(speckLocation, 2, 1)
         world.grid.cells(speckLocation).elevation = 20000
         world.grid.neighborCells(speckLocation).forEach({
             it.elevation = 2000
