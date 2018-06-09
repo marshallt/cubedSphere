@@ -4,8 +4,8 @@ import javafx.event.EventHandler
 
 class Simulation(val world: World, val uiUpdateFunction: UIUpdateFunction, val numberOfIterations: Int, val yearsPerIteration: Int) {
     private var iterationCtr = 0
-    private var speckLocation = GridRef(world.grid, 1, 1, 1)
-    private var speckOffset = GridRef(world.grid, 1, 2, 1)
+    private var speckLocation = CubeVec(world.grid, 1, 0, 0)
+    private var speckOffset = CubeVec(world.grid, 1, 2, 1)
 
     fun run() {
         val thread = Thread(iterate())
@@ -24,7 +24,7 @@ class Simulation(val world: World, val uiUpdateFunction: UIUpdateFunction, val n
         task.onSucceeded = EventHandler<WorkerStateEvent>() {
             uiUpdateFunction()
             iterationCtr++
-            if  (iterationCtr < numberOfIterations) {
+            if  (iterationCtr <= numberOfIterations) {
                 run()
             }
         }
@@ -34,16 +34,15 @@ class Simulation(val world: World, val uiUpdateFunction: UIUpdateFunction, val n
 
     private fun updateWorld() {
         try {
-            val start = System.nanoTime()
-            Thread.sleep(1000)
-            //world.grid.reset()
-            speckLocation = world.grid.offset(speckLocation, speckOffset)
-            //if you change faces, need to update the grid offset
-            if (speckLocation.face != speckOffset.face) {
-                speckOffset = world.grid.adjustOffsetForFaceChange(offset = speckOffset, newFace = speckLocation.face)
-            }
+            Thread.sleep(500)
+            //world.cubeGrid.reset()
             world.grid.cells(speckLocation).elevation = 20000
-//            world.grid.neighborCells(speckLocation).forEach({
+            speckLocation = speckLocation.add(speckOffset)
+            //if you change faces, need to update the cubeGrid offset
+            if (speckLocation.face != speckOffset.face) {
+                speckOffset = speckOffset.adjustForFaceChange(newFace = speckLocation.face)
+            }
+//            world.cubeGrid.neighborCells(speckLocation).forEach({
 //                it.elevation = 2000
 //           })
         } catch (e: Exception) {

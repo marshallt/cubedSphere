@@ -3,7 +3,6 @@ import javafx.scene.*
 import javafx.scene.control.ScrollPane
 import javafx.stage.Stage
 import javafx.scene.image.ImageView
-import javafx.scene.paint.Color
 import javafx.scene.paint.PhongMaterial
 import javafx.scene.shape.MeshView
 import javafx.scene.transform.Rotate
@@ -20,7 +19,7 @@ class Main : Application() {
     private var stage = Stage()
     private var imageView = ImageView()
     private var meshView = MeshView()
-    private var scale2d = 50
+    private var scale2d = 20
 
     private var activeRenderView: RenderView = RenderView.CubeFlat
         set(value) {
@@ -57,8 +56,8 @@ class Main : Application() {
         updateView()
         primaryStage.show()
 
-        //_test.offset(world.grid)
-        world.simulate(::updateView, 3, 1)
+        _test.neighbors(world.grid)
+        //world.simulate(::updateView, 5, 1)
 
     }
 

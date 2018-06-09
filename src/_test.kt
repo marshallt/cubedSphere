@@ -1,13 +1,20 @@
 object _test {
-    fun offset(grid: Grid) {
-        var ref = GridRef(grid, 1, 128, 128)
-        println(grid.offset(ref, GridRef(grid,1, 3, 2)))
+    fun neighbors(cubeGrid: CubeGrid) {
+        var ref: CubeVec
 
-        ref = GridRef(grid,0, 255,128)
-        println(grid.offset(ref, GridRef(grid,0, 1, 5)))
-        println(grid.offset(ref, GridRef(grid,0, -5, 3)))
+        for (face in 0..5) {
+            println("FACE $face")
+            ref = CubeVec(cubeGrid, face, 0, 0)
+            println(ref.neighborVecs())
 
+            ref = CubeVec(cubeGrid, face, cubeGrid.maxXY, 0)
+            println(ref.neighborVecs())
 
+            ref = CubeVec(cubeGrid, face, 0, cubeGrid.maxXY)
+            println(ref.neighborVecs())
 
+            ref = CubeVec(cubeGrid, face, cubeGrid.maxXY, cubeGrid.maxXY)
+            println(ref.neighborVecs())
+        }
     }
 }
