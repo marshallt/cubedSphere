@@ -68,9 +68,13 @@ class Renderer(val world: World) {
     }
 
     fun setPixel(image: BufferedImage, x: Int, y: Int, color: Color, scale: Int) {
-        for (i in 0 until scale) {
-            //println("setting $x, $y at scale $scale")
-            image.setRGB(x * scale + i, y * scale + i, color.rgb)
+        if (scale == 1) {
+            image.setRGB(x, y, color.rgb)
+        }
+        else {
+            val g = image.graphics as Graphics2D
+            g.color = color
+            g.fillRect(x * scale, y * scale, scale, scale)
         }
     }
 
@@ -92,6 +96,7 @@ class Renderer(val world: World) {
         for (face in 0..5) {
             for (y in 0 until grid.size) {
                 for (x in 0 until grid.size) {
+
                     when (face) {
                         in 0..3 -> {
                             imageX = (face * grid.size) + x
@@ -99,14 +104,14 @@ class Renderer(val world: World) {
                         }
                         4 -> {
                             //north pole face. Rotate 90 degree counterclockwise and move right 1
-                            imageX = grid.size + y
-                            imageY = grid.size - x
+                            imageX = grid.size + x
+                            imageY = y
                             //println("North ($imageX, $imageY)")
                         }
                         5 -> {
                             //south pole face. Rotate 90 degrees clockwise and move to the bottom of the image and right 1
-                            imageX = grid.size * 2 - y
-                            imageY = grid.size * 2 + x
+                            imageX = grid.size + x
+                            imageY = grid.size * 2 + y
                             //println("South ($imageX, $imageY)")
                         }
                     }

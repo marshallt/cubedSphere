@@ -65,7 +65,7 @@ class View3d(root: Parent, width: Double, height: Double, depthBuffer: Boolean, 
                 if (camera.translateZ < -1000.0) camera.translateZ = -1000.0
 
             }
-            println(camera.translateZ)
+            println("camera.translatez = ${camera.translateZ}")
         }
     }
 

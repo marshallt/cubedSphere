@@ -1,5 +1,5 @@
 class World() {
-    private val GRID_SIZE = 256 //width and height of each face
+    private val GRID_SIZE = 4 //width and height of each face
 
     val grid = Grid(GRID_SIZE)
 

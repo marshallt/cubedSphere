@@ -20,9 +20,9 @@ class Main : Application() {
     private var stage = Stage()
     private var imageView = ImageView()
     private var meshView = MeshView()
-    private var scale2d = 2
+    private var scale2d = 50
 
-    private var activeRenderView: RenderView = RenderView.Peaked
+    private var activeRenderView: RenderView = RenderView.CubeFlat
         set(value) {
             field = value
             updateView()
@@ -35,6 +35,7 @@ class Main : Application() {
         val root2d = Group()
         val root3d = Group()
         renderer = Renderer(world)
+
 
         //set up 3d
         meshView = renderer.render3d(200.0f)
@@ -55,7 +56,9 @@ class Main : Application() {
 
         updateView()
         primaryStage.show()
-        world.simulate(::updateView, 1000, 1)
+
+        //_test.offset(world.grid)
+        world.simulate(::updateView, 3, 1)
 
     }
 
